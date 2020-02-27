@@ -95,9 +95,9 @@ class NavData:
 if __name__ == "__main__":
     api_public_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwdWJsaWMudG9rZW4udjFAbmF2Lm5vIiwiYXVkIjoiZmVlZC1hcGktdjEiLCJpc3MiOiJuYXYubm8iLCJpYXQiOjE1NTc0NzM0MjJ9.jNGlLUF9HxoHo5JrQNMkweLj_91bgk97ZebLdfx3_UQ'
     nav = NavData(api_public_token)
-    nav.download_data()
-    nav.lift_data()
-    nav.serialize()
+    if nav.download_data() is True:
+        nav.lift_data()
+        nav.serialize()
 
 # TODO: Looka at URI's and TimeDates, make literals instead of objects???
 
