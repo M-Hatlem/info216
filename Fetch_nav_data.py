@@ -1,8 +1,7 @@
 # requires request library, download at: pip install requests
-import requests
-import json
+import requests, json
 
-
+# This function downloads the data set from Nav, it requires a token as an input
 def get_nav_data(token):
     api_endpoint = 'https://arbeidsplassen.nav.no/public-feed/api/v1/ads?size=4999'
     api_headers = {'accept': 'application/json',
