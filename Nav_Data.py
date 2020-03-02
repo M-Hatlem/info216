@@ -4,7 +4,8 @@
 import requests
 import json
 import re
-from rdflib import Graph,  Namespace, Literal
+from rdflib import Graph, Namespace, Literal
+from rdflib.namespace import XSD
 from bs4 import BeautifulSoup
 
 
@@ -70,6 +71,8 @@ class NavData:
                             self.graph.add((ns[graph_predicate + "-unique_key-" + unique_key], ns[dict_data_from_dict], Literal(job_data_dict[dict_data_from_dict])))
                 elif graph_predicate == "description" and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(self.clean_html_tag(job_ad[graph_predicate]))))
+                elif (graph_predicate == "applicationDue" or graph_predicate == "expires" or graph_predicate == "starttime" or graph_predicate == "published" or graph_predicate == "updated") and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
                 elif type(job_ad[graph_predicate]) is str:
                     self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_spaces(job_ad[graph_predicate])]))
                 else:
@@ -107,8 +110,6 @@ if __name__ == "__main__":
     #nav.save_json("data.json")
     #nav.load_data("data.json")
     nav.serialize()
-
-# TODO: Looka at URI's and TimeDates, make literals instead of objects???
 
 # TODO: Replace example with out own ontology
 
