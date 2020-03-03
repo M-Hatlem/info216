@@ -44,7 +44,7 @@ class NavData:
             json.dump(self.data, f, ensure_ascii=False, indent=4)
 
     # If you want to load a JSON file saved earlier, you can load a JSON document with nav data using this command. if you do this you don't need to download data, requires filename as input
-    def load_data(self, filename):
+    def load_json(self, filename):
         with open(filename, "r", encoding='utf-8') as json_file:
             self.data = json.load(json_file)
         self.lift_data()
@@ -66,40 +66,50 @@ class NavData:
                     job_data_dict = job_ad[graph_predicate]
                     for dict_data_from_dict in job_data_dict:
                         if dict_data_from_dict == "description" and job_data_dict[dict_data_from_dict] is not None:
-                            self.graph.add((ns[graph_predicate + "-unique_key-" + unique_key], ns[dict_data_from_dict], Literal(self.clean_html_tag(job_data_dict[dict_data_from_dict]))))
+                            self.graph.add((ns[graph_predicate + "-unique_key-" + unique_key], ns[dict_data_from_dict], Literal(self.clean_html_tags(job_data_dict[dict_data_from_dict]))))
                         else:
                             self.graph.add((ns[graph_predicate + "-unique_key-" + unique_key], ns[dict_data_from_dict], Literal(job_data_dict[dict_data_from_dict])))
                 elif graph_predicate == "description" and job_ad[graph_predicate] is not None:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(self.clean_html_tag(job_ad[graph_predicate]))))
+                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(self.clean_html_tags(job_ad[graph_predicate]))))
                 elif (graph_predicate == "applicationDue" or graph_predicate == "expires" or graph_predicate == "starttime" or graph_predicate == "published" or graph_predicate == "updated") and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
                 elif type(job_ad[graph_predicate]) is str:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_spaces(job_ad[graph_predicate])]))
+                    self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
                 else:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate])))
             # To test run on only one ad remove # on #break
             #break
+        self.add_vocab()
 
-    # This function removes html tags from the description of the ads
+    # This function removes html tags and new lines from the description of the ads
     @staticmethod
-    def clean_html_tag(in_data):
+    def clean_html_tags(in_data):
         soup = BeautifulSoup(in_data, 'html.parser')
         out_data = soup.get_text()
         out_data = out_data.replace("\r", "")
         out_data = out_data.replace("\n", "")
         return out_data
 
-    # This function removes new lines from the description of the ads
+    # This function removes new lines, ' and " from the description of the ads
     @staticmethod
-    def clean_spaces(in_data):
+    def clean_text(in_data):
         in_data = re.sub(' ', '_', in_data)
         in_data = re.sub("'", '', in_data)
         out_data = re.sub('"', '', in_data)
         return out_data
 
-    # This function serializes the data to a turtle file and saves it locally
-    def serialize(self):
-        self.graph.serialize(destination='nav_triples.ttl', format='turtle')
+    # This function serializes the data to a turtle file and saves it locally. Requires a name to save as
+    def serialize(self, filename):
+        self.graph.serialize(destination=filename, format='turtle')
+
+    # This function allows you to load a turtle file you previously serialized into the graph, requires the name of the file to load
+    def load_serialized_data(self, filename):
+        self.graph.parse(filename, format="turtle")
+
+    # This function adds the other vocabs, and replaces the prefixes of our custom ontology with the more used ones
+    def add_vocab(self):
+        sch = Namespace("http://schema.org/")
+        self.graph.bind("sch", sch)
 
 
 if __name__ == "__main__":
@@ -108,9 +118,10 @@ if __name__ == "__main__":
     #nav.update_token(api_public_token)
     nav.download_data()
     #nav.save_json("data.json")
-    #nav.load_data("data.json")
-    nav.serialize()
+    #nav.load_json("data.json")
+    nav.serialize('nav_triples.ttl')
+    #nav.load_serialized_data('nav_triples.ttl')
 
-# TODO: Replace example with out own ontology
+# TODO: Replace ns example with out own ontology in lift_data function
 
-# TODO: create a fucntion that imports replaces ex in schema and other vocab properties in the finished file
+# TODO: finish add_vocab function that imports replaces ex in schema and other vocab properties in the finished file
