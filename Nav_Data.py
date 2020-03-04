@@ -73,7 +73,7 @@ class NavData:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(self.clean_html_tags(job_ad[graph_predicate]))))
                 elif (graph_predicate == "applicationDue" or graph_predicate == "expires" or graph_predicate == "starttime" or graph_predicate == "published" or graph_predicate == "updated") and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
-                elif (graph_predicate == "link" or graph_predicate == "positioncount") and job_ad[graph_predicate] is not None:
+                elif (graph_predicate == "link" or graph_predicate == "sourceurl" or graph_predicate == "positioncount" ) and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate])))
                 elif type(job_ad[graph_predicate]) is str and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
