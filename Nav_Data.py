@@ -73,7 +73,7 @@ class NavData:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(self.clean_html_tags(job_ad[graph_predicate]))))
                 elif (graph_predicate == "applicationDue" or graph_predicate == "expires" or graph_predicate == "starttime" or graph_predicate == "published" or graph_predicate == "updated") and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
-                elif (graph_predicate == "link" or graph_predicate == "sourceurl" or graph_predicate == "positioncount" ) and job_ad[graph_predicate] is not None:
+                elif (graph_predicate == "link" or graph_predicate == "sourceurl" or graph_predicate == "positioncount") and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate])))
                 elif type(job_ad[graph_predicate]) is str and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
@@ -112,6 +112,7 @@ class NavData:
     def add_vocab(self):
         sch = Namespace("http://schema.org/")
         self.graph.bind("sch", sch)
+        #if "ex:description" or "ex:published" or "ex:title": replace("ex:", "sch:") eller noe lignende finn rett vocab først, eller bruke rdfs plus equals om mulig????
 
 
 if __name__ == "__main__":
@@ -122,8 +123,9 @@ if __name__ == "__main__":
     #nav.save_json("data.json")
     #nav.load_json("data.json")
     nav.serialize('nav_triples.ttl')
-    #nav.load_serialized_data('nav_triples.ttl')
+    nav.load_serialized_data('nav_triples.ttl')
 
 # TODO: Replace ns example with out own ontology in lift_data function
 
 # TODO: finish add_vocab function that imports replaces ex in schema and other vocab properties in the finished file
+# TODO: things to find vocabs for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode
