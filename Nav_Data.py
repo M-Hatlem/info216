@@ -110,9 +110,27 @@ class NavData:
 
     # This function adds the other vocabs, and replaces the prefixes of our custom ontology with the more used ones
     def add_vocab(self):
-        sch = Namespace("http://schema.org/")
-        self.graph.bind("sch", sch)
-        #if "ex:description" or "ex:published" or "ex:title": replace("ex:", "sch:") eller noe lignende finn rett vocab først, eller bruke rdfs plus equals om mulig????
+        sch = Namespace("http://schema.org/")  # TODO example properties, remember to change
+        self.graph.bind("sch", sch)  # TODO example properties, remember to change
+        foaf = Namespace("http://foaf.org/")  # TODO example properties, remember to change
+        self.graph.bind("foaf", foaf)  # TODO example properties, remember to change
+        temp_graph = self.graph.serialize(format="turtle")
+        temp_graph = temp_graph.decode("utf-8")
+        new_graph = ""
+        for line in temp_graph.split("\n"):
+            if "ex:description" in line or "ex:published" in line or "ex:title" in line:  # TODO example properties, remember to change
+                line = line.replace("ex:description", "sch:description")  # TODO example properties, remember to change
+                line = line.replace("ex:published", "sch:published")  # TODO example properties, remember to change
+                line = line.replace("ex:title", "sch:title")  # TODO example properties, remember to change
+                new_graph = new_graph + line + "\n"
+            elif "ex:name" in line or "ex:extent" in line:  # TODO example properties, remember to change
+                line = line.replace("ex:name", "foaf:extent")  # TODO example properties, remember to change
+                line = line.replace("ex:extent", "foaf:extent")  # TODO example properties, remember to change
+                new_graph = new_graph + line + "\n"
+            else:
+                new_graph = new_graph + line + "\n"
+        # self.graph=Graph()  # De-commenting this will overwrite the original ex:properies instead of having both the new and the old ones
+        self.graph.parse(data=new_graph, format="turtle")
 
 
 if __name__ == "__main__":
@@ -123,9 +141,6 @@ if __name__ == "__main__":
     #nav.save_json("data.json")
     #nav.load_json("data.json")
     nav.serialize('nav_triples.ttl')
-    nav.load_serialized_data('nav_triples.ttl')
 
 # TODO: Replace ns example with out own ontology in lift_data function
-
-# TODO: finish add_vocab function that imports replaces ex in schema and other vocab properties in the finished file
-# TODO: things to find vocabs for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode
+# TODO: things to find vocabs in add_vocab() for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode . try to have as many in the same vocabs as possible
