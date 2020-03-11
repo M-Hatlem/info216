@@ -153,3 +153,4 @@ if __name__ == "__main__":
     # TODO improve and expand query and filtering options
     # TODO Use semantics in a meaningful way
     # TODO Complete all TODOs
+    # TODO test git
