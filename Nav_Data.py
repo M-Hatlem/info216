@@ -21,7 +21,7 @@ class NavData:
 
     # This function downloads the data set from Nav, it requires a token as an input
     def download_data(self):
-        api_endpoint = 'https://arbeidsplassen.nav.no/public-feed/api/v1/ads?size=4999'
+        api_endpoint = 'https://arbeidsplassen.nav.no/public-feed/api/v1/ads?size=100'
         api_headers = {'accept': 'application/json',
                        'Authorization': 'Bearer ' + self.token}
         download = requests.get(url=api_endpoint, headers=api_headers)
@@ -31,10 +31,10 @@ class NavData:
             self.lift_data()
             return True
         elif download.status_code == 401:
-            print("Error 401 not authorized, public token likely expired. Get a new one at: https://github.com/navikt/pam-public-feed") # TODO example print, change to display in GUI
+            print("Error 401 not authorized, public token likely expired. Get a new one at: https://github.com/navikt/pam-public-feed")  # TODO example print, change to display in GUI
             return False
         else:
-            print("Error: " + str(download.status_code)) # TODO example print, change to display in GUI
+            print("Error: " + str(download.status_code))  # TODO example print, change to display in GUI
             return False
 
     # if you want to save the json data downloaded, do this after a download, requires filname as input:
@@ -50,7 +50,7 @@ class NavData:
 
     # This function lifts the data downloaded from nav into rdf triples
     def lift_data(self):
-        ns = Namespace("http://example.org/")
+        ns = Namespace("http://example.org/")  # TODO example properties, remember to change, Replace ns example with out own ontology
         self.graph.bind("ex", ns)
         for job_ad in self.data['content']:
             unique_key = job_ad['uuid']
@@ -129,6 +129,7 @@ class NavData:
                 new_graph = new_graph + line + "\n"
         #self.graph=Graph()  # De-commenting this will overwrite the original ex:properies instead of having both the new and the old ones
         self.graph.parse(data=new_graph, format="turtle")
+        # TODO: things to find vocabs in add_vocab() for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode . try to have as many in the same vocabs as possible
 
     def query(self, statement):
         qres = self.graph.query(statement)
@@ -147,6 +148,8 @@ if __name__ == "__main__":
     nav.serialize('nav_triples.ttl')
     #nav.load_serialized_data('nav_triples.ttl')
     nav.query(example_query)
-
-# TODO: Replace ns example with out own ontology in lift_data function
-# TODO: things to find vocabs in add_vocab() for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode . try to have as many in the same vocabs as possible
+    # TODO Create GUI with support for all functions
+    # TODO Add wikidata/Dbpedia integration
+    # TODO improve and expand query and filtering options
+    # TODO Use semantics in a meaningful way
+    # TODO Complete all TODOs
