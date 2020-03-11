@@ -131,14 +131,11 @@ class NavData:
         self.graph.parse(data=new_graph, format="turtle")
         # TODO: things to find vocabs in add_vocab() for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode . try to have as many in the same vocabs as possible
 
+    # Runs allows us to run queries on the graph
     def query(self, statement):
         qres = self.graph.query(statement)
         for row in qres:
             print("%s has title %s" % row)   # TODO example print, change to display in GUI
-
-    def test(self):
-        x = 1
-        #delete this
 
 
 if __name__ == "__main__":
@@ -157,4 +154,3 @@ if __name__ == "__main__":
     # TODO improve and expand query and filtering options
     # TODO Use semantics in a meaningful way
     # TODO Complete all TODOs
-    # TODO test git
