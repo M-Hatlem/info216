@@ -136,9 +136,6 @@ class NavData:
         for row in qres:
             print("%s has title %s" % row)   # TODO example print, change to display in GUI
 
-    def test(self):
-        x = 1
-        #delete this
 
 
 if __name__ == "__main__":
@@ -157,4 +154,4 @@ if __name__ == "__main__":
     # TODO improve and expand query and filtering options
     # TODO Use semantics in a meaningful way
     # TODO Complete all TODOs
-    # TODO test git
+
