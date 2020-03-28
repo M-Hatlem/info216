@@ -52,6 +52,10 @@ class NavData:
     def lift_data(self):
         ns = Namespace("http://example.org/")  # TODO example properties, remember to change, Replace ns example with out own ontology
         self.graph.bind("ex", ns)
+        sch = Namespace("http://schema.org/")
+        self.graph.bind("schema", sch)
+        dbp = Namespace("http://dbpedia.org/ontology/")
+        self.graph.bind("dbpedia-owl", dbp)
         for job_ad in self.data['content']:
             unique_key = job_ad['uuid']
             for graph_predicate in job_ad:
@@ -59,8 +63,14 @@ class NavData:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(graph_predicate + "-uid:" + unique_key)))
                     for dict_data_from_list in job_ad[graph_predicate]:
                         for elm_in_list in dict_data_from_list:
-                            if (elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "municipal") and elm_in_list is not None:
-                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[elm_in_list], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
+                            if (elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "city") and elm_in_list is not None:
+                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], dbp[elm_in_list], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
+                            elif elm_in_list == "postalCode":
+                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], dbp[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
+                            elif elm_in_list == "municipal":
+                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], dbp["municipality"], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
+                            elif elm_in_list == "address":
+                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], sch[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
                             else:
                                 self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
                 elif type(job_ad[graph_predicate]) is dict:
@@ -68,21 +78,42 @@ class NavData:
                     job_data_dict = job_ad[graph_predicate]
                     for dict_data_from_dict in job_data_dict:
                         if dict_data_from_dict == "description" and job_data_dict[dict_data_from_dict] is not None:
-                            self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[dict_data_from_dict], Literal(self.clean_html_tags(job_data_dict[dict_data_from_dict]))))
+                            self.graph.add((ns[graph_predicate + "-uid:" + unique_key], sch[dict_data_from_dict], Literal(self.clean_html_tags(job_data_dict[dict_data_from_dict]))))
+                        elif dict_data_from_dict == "name" and job_ad[graph_predicate] is not None:
+                            self.graph.add((ns[graph_predicate + "-uid:" + unique_key], sch[dict_data_from_dict], ns[self.clean_text(job_data_dict[dict_data_from_dict])]))
+                        elif dict_data_from_dict == "homepage" and job_ad[graph_predicate] is not None:
+                            self.graph.add((ns[graph_predicate + "-uid:" + unique_key], sch["url"], Literal(job_data_dict[dict_data_from_dict])))
+                        elif dict_data_from_dict == "orgnr" and job_ad[graph_predicate] is not None:
+                            self.graph.add((ns[graph_predicate + "-uid:" + unique_key], sch["identifier"], Literal(job_data_dict[dict_data_from_dict])))
                         else:
                             self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[dict_data_from_dict], Literal(job_data_dict[dict_data_from_dict])))
                 elif graph_predicate == "description" and job_ad[graph_predicate] is not None:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(self.clean_html_tags(job_ad[graph_predicate]))))
-                elif (graph_predicate == "applicationDue" or graph_predicate == "expires" or graph_predicate == "starttime" or graph_predicate == "published" or graph_predicate == "updated") and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch[graph_predicate], Literal(self.clean_html_tags(job_ad[graph_predicate]))))
+                elif graph_predicate == "updated" and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
                 elif (graph_predicate == "link" or graph_predicate == "sourceurl" or graph_predicate == "positioncount") and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate])))
+                elif graph_predicate == "title" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
+                elif graph_predicate == "jobtitle" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch["jobTitle"], ns[self.clean_text(job_ad[graph_predicate])]))
+                elif graph_predicate == "engagementtype" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch["employmentType"], ns[self.clean_text(job_ad[graph_predicate])]))
+                elif graph_predicate == "expires" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
+                elif graph_predicate == "starttime" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch["jobStartDate"], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
+                elif graph_predicate == "applicationDue" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch["applicationDeadline"], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
+                elif graph_predicate == "published" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch["datePosted"], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
+                elif graph_predicate == "link" and job_ad[graph_predicate] is not None:
+                    self.graph.add((ns[unique_key], sch["relatedLink"], Literal(job_ad[graph_predicate])))
                 elif type(job_ad[graph_predicate]) is str and job_ad[graph_predicate] is not None:
                     self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
                 else:
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate])))
             #break  # To test run on only one ad remove # on #break
-        self.add_vocab()
 
     # This function removes html tags and new lines from the description of the ads
     @staticmethod
@@ -109,42 +140,6 @@ class NavData:
     def load_serialized_data(self, filename):
         self.graph.parse(filename, format="turtle")
 
-    # This function adds the other vocabs, and replaces the prefixes of our custom ontology with the more used ones
-    def add_vocab(self):
-        sch = Namespace("http://schema.org/")
-        self.graph.bind("schema", sch)
-        dbp = Namespace("http://dbpedia.org/ontology/")
-        self.graph.bind("dbpedia-owl", dbp)
-        temp_graph = self.graph.serialize(format="turtle").decode("utf-8")
-        new_graph = ""
-        for line in temp_graph.split("\n"):
-            line = line.replace("ex:workLocations", "schema:WorkLocation")
-            line = line.replace("ex:title", "schema:title")
-            line = line.replace("ex:starttime", "schema:jobStartDate")
-            line = line.replace("ex:sector", "schema:hiringOrganization")
-            line = line.replace("ex:published", "schema:datePosted")
-            line = line.replace("ex:occupationCategories", "schema:occupationCategory")
-            line = line.replace("ex:link", "schema:relatedLink")
-            line = line.replace("ex:jobtitle", "schema:jobTitle")
-            line = line.replace("ex:extent", "schema:") #TODO
-            line = line.replace("ex:expires", "schema:expires")
-            line = line.replace("ex:engagementtype", "schema:employmentType")
-            line = line.replace("ex:employer", "schema:employmentUnit")
-            line = line.replace("ex:description", "schema:description")
-            line = line.replace("ex:applicationDue", "schema:applicationDeadline")
-            line = line.replace("ex:homepage", "schema:url")
-            line = line.replace("ex:name", "schema:name")
-            line = line.replace("ex:orgnr", "schema:memberOf")
-            line = line.replace("ex:address", "schema:address")
-            line = line.replace("ex:city", "dbpedia-owl:city")
-            line = line.replace("ex:country", "dbpedia-owl:country")
-            line = line.replace("ex:county", "dbpedia-owl:county")
-            line = line.replace("ex:municipal", "dbpedia-owl:municipality")
-            line = line.replace("ex:postalCode", "dbpedia-owl:postalCode")
-            new_graph = new_graph + line + "\n"
-        #self.graph=Graph()  # De-commenting this will overwrite the original ex:properies instead of having both the new and the old ones
-        self.graph.parse(data=new_graph, format="turtle")
-
     # Runs allows us to run queries on the graph
     def query(self, statement):
         qres = self.graph.query(statement)
@@ -164,6 +159,6 @@ if __name__ == "__main__":
     #nav.load_serialized_data('nav_triples.ttl')
     nav.query(example_query)
     # TODO Create GUI with support for all functions
-    # TODO Add wikidata/Dbpedia integration
+    # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
     # TODO improve and expand query and filtering options
     # TODO add option to search on UIB's sv faculty study lines and get possible jobs for a student with x degree
