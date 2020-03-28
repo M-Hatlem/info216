@@ -56,12 +56,15 @@ class NavData:
             unique_key = job_ad['uuid']
             for graph_predicate in job_ad:
                 if type(job_ad[graph_predicate]) is list:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], ns[graph_predicate + "-uid:" + unique_key]))
+                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(graph_predicate + "-uid:" + unique_key)))
                     for dict_data_from_list in job_ad[graph_predicate]:
                         for elm_in_list in dict_data_from_list:
-                            self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
+                            if (elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "municipal") and elm_in_list is not None:
+                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[elm_in_list], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
+                            else:
+                                self.graph.add((ns[graph_predicate + "-uid:" + unique_key], ns[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
                 elif type(job_ad[graph_predicate]) is dict:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], ns[graph_predicate + "-uid:" + unique_key]))
+                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(graph_predicate + "-uid:" + unique_key)))
                     job_data_dict = job_ad[graph_predicate]
                     for dict_data_from_dict in job_data_dict:
                         if dict_data_from_dict == "description" and job_data_dict[dict_data_from_dict] is not None:
@@ -108,28 +111,39 @@ class NavData:
 
     # This function adds the other vocabs, and replaces the prefixes of our custom ontology with the more used ones
     def add_vocab(self):
-        sch = Namespace("http://schema.org/")  # TODO example properties, remember to change
-        self.graph.bind("sch", sch)  # TODO example properties, remember to change
-        foaf = Namespace("http://foaf.org/")  # TODO example properties, remember to change
-        self.graph.bind("foaf", foaf)  # TODO example properties, remember to change
-        temp_graph = self.graph.serialize(format="turtle")
-        temp_graph = temp_graph.decode("utf-8")
+        sch = Namespace("http://schema.org/")
+        self.graph.bind("schema", sch)
+        dbp = Namespace("http://dbpedia.org/ontology/")
+        self.graph.bind("dbpedia-owl", dbp)
+        temp_graph = self.graph.serialize(format="turtle").decode("utf-8")
         new_graph = ""
         for line in temp_graph.split("\n"):
-            if "ex:description" in line or "ex:published" in line or "ex:title" in line:  # TODO example properties, remember to change
-                line = line.replace("ex:description", "sch:description")  # TODO example properties, remember to change
-                line = line.replace("ex:published", "sch:published")  # TODO example properties, remember to change
-                line = line.replace("ex:title", "sch:title")  # TODO example properties, remember to change
-                new_graph = new_graph + line + "\n"
-            elif "ex:name" in line or "ex:extent" in line:  # TODO example properties, remember to change
-                line = line.replace("ex:name", "foaf:extent")  # TODO example properties, remember to change
-                line = line.replace("ex:extent", "foaf:extent")  # TODO example properties, remember to change
-                new_graph = new_graph + line + "\n"
-            else:
-                new_graph = new_graph + line + "\n"
+            line = line.replace("ex:workLocations", "schema:WorkLocation")
+            line = line.replace("ex:title", "schema:title")
+            line = line.replace("ex:starttime", "schema:jobStartDate")
+            line = line.replace("ex:sector", "schema:hiringOrganization")
+            line = line.replace("ex:published", "schema:datePosted")
+            line = line.replace("ex:occupationCategories", "schema:occupationCategory")
+            line = line.replace("ex:link", "schema:relatedLink")
+            line = line.replace("ex:jobtitle", "schema:jobTitle")
+            line = line.replace("ex:extent", "schema:") #TODO
+            line = line.replace("ex:expires", "schema:expires")
+            line = line.replace("ex:engagementtype", "schema:employmentType")
+            line = line.replace("ex:employer", "schema:employmentUnit")
+            line = line.replace("ex:description", "schema:description")
+            line = line.replace("ex:applicationDue", "schema:applicationDeadline")
+            line = line.replace("ex:homepage", "schema:url")
+            line = line.replace("ex:name", "schema:name")
+            line = line.replace("ex:orgnr", "schema:memberOf")
+            line = line.replace("ex:address", "schema:address")
+            line = line.replace("ex:city", "dbpedia-owl:city")
+            line = line.replace("ex:country", "dbpedia-owl:country")
+            line = line.replace("ex:county", "dbpedia-owl:county")
+            line = line.replace("ex:municipal", "dbpedia-owl:municipality")
+            line = line.replace("ex:postalCode", "dbpedia-owl:postalCode")
+            new_graph = new_graph + line + "\n"
         #self.graph=Graph()  # De-commenting this will overwrite the original ex:properies instead of having both the new and the old ones
         self.graph.parse(data=new_graph, format="turtle")
-        # TODO: things to find vocabs in add_vocab() for: workLocations, title, starttime, sector, published, occupationCategories, link, jobtitle, extent, expires, engagementtype, employer, description, applicationDue, homepage, name, orgnr, address, city, country, county, municipal, postalCode . try to have as many in the same vocabs as possible
 
     # Runs allows us to run queries on the graph
     def query(self, statement):
@@ -152,5 +166,4 @@ if __name__ == "__main__":
     # TODO Create GUI with support for all functions
     # TODO Add wikidata/Dbpedia integration
     # TODO improve and expand query and filtering options
-    # TODO Use semantics in a meaningful way
-    # TODO Complete all TODOs
+    # TODO add option to search on UIB's sv faculty study lines and get possible jobs for a student with x degree
