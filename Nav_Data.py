@@ -151,9 +151,13 @@ class NavData:
 
     # Runs queries on the graph
     def query(self, statement):
-        qres = self.graph.query(statement)
-        for row in qres:
-            print("%s has title %s" % row)   # TODO example print, change to display in GUI
+        query_res = self.graph.query(statement)
+        q_res_txt = ""
+        for row in query_res:
+            q_res_txt = q_res_txt + "%s" % row + "\n"
+        q_res_txt = q_res_txt.replace("http://example.org/", "")
+        interface.result_text.set(q_res_txt)
+        interface.gui.update_idletasks()
 
 
 # This class controls the GUI and everything displayed to the user
@@ -164,6 +168,8 @@ class TKinterGui:
         self.gui = tkinter.Tk()
         self.gui.title('Semantic job-searcher')
         self.gui.geometry("800x500")
+        self.result_text = tkinter.StringVar()
+        self.result = tkinter.Label(self.gui, textvariable=self.result_text, justify='left')
         menu = tkinter.Menu(self.gui)
         self.gui.config(menu=menu)
         importmenu = tkinter.Menu(self.gui)
@@ -199,22 +205,34 @@ class TKinterGui:
     def query_mode(self):
         self.status.set("")
         interface.gui.update_idletasks()
-        self.q_mode_active = True
-        tkinter.Label(self.gui, text="Search:").pack()
-        search_fld = tkinter.Entry(self.gui, width=50)
-        search_fld.pack()
-        search_fld.insert(0, api_public_token)
-        search_btn = tkinter.Button(text='Search', command=lambda: nav.query(example_query))
-        search_btn.pack()
+        if self.q_mode_active is True:
+            self.result.destroy()
+            self.result_text = ""
+        else:
+            self.q_mode_active = True
+            tkinter.Label(self.gui, text="Search:").pack()
+            search_fld = tkinter.Entry(self.gui, width=50)
+            search_fld.pack()
+            search_btn = tkinter.Button(text='Search', command=lambda: nav.query("SELECT DISTINCT ?" + search_fld.get() + " WHERE { ?uuid schema:" + search_fld.get() + " ?" + search_fld.get() + "  }"))
+            search_btn.pack()
+            container = tkinter.Frame(self.gui)
+            canvas = tkinter.Canvas(container)
+            scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
+            scrollable_frame = tkinter.Frame(canvas)
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            container.pack()
+            canvas.pack(side="left", fill="both", expand=True)
+            scrollbar.pack(side="right", fill="y")
+        self.result = tkinter.Label(scrollable_frame, textvariable=self.result_text,  justify='left')
+        self.result.pack()
 
 
 if __name__ == "__main__":
     api_public_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwdWJsaWMudG9rZW4udjFAbmF2Lm5vIiwiYXVkIjoiZmVlZC1hcGktdjEiLCJpc3MiOiJuYXYubm8iLCJpYXQiOjE1NTc0NzM0MjJ9.jNGlLUF9HxoHo5JrQNMkweLj_91bgk97ZebLdfx3_UQ'
-    example_query = """SELECT DISTINCT ?uuid ?title WHERE {?uuid schema:title ?title .}"""
     nav = NavData(api_public_token)
     interface = TKinterGui()
     interface.gui.mainloop()
-    # TODO finish gui query mode
     # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
-    # TODO improve and expand query and filtering options
+    # TODO improve and expand query and filtering options by rewriting and improving query funcitons
     # TODO add option to search on UIB's sv faculty study lines and get possible jobs for a student with x degree
