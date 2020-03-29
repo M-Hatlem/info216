@@ -156,6 +156,7 @@ class NavData:
         for row in query_res:
             q_res_txt = q_res_txt + "%s" % row + "\n"
         q_res_txt = q_res_txt.replace("http://example.org/", "")
+        q_res_txt = q_res_txt.replace("_", " ")
         interface.result_text.set(q_res_txt)
         interface.gui.update_idletasks()
 
@@ -215,15 +216,15 @@ class TKinterGui:
             search_fld.pack()
             search_btn = tkinter.Button(text='Search', command=lambda: nav.query("SELECT DISTINCT ?" + search_fld.get() + " WHERE { ?uuid schema:" + search_fld.get() + " ?" + search_fld.get() + "  }"))
             search_btn.pack()
-            container = tkinter.Frame(self.gui)
-            canvas = tkinter.Canvas(container)
-            scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
-            scrollable_frame = tkinter.Frame(canvas)
-            canvas.configure(scrollregion=canvas.bbox("all"))
-            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-            container.pack()
-            canvas.pack(side="left", fill="both", expand=True)
-            scrollbar.pack(side="right", fill="y")
+        container = tkinter.Frame(self.gui)
+        canvas = tkinter.Canvas(container)
+        scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tkinter.Frame(canvas)
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        container.pack()
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
         self.result = tkinter.Label(scrollable_frame, textvariable=self.result_text,  justify='left')
         self.result.pack()
 
