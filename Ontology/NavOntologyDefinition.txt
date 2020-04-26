@@ -4,33 +4,34 @@ The NavOnt name spase is used to define the different properties used by NAV tha
 Schema overview:
   employer:
       Definition: Information about the employer
-      URI:
+      URI:https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#employer
   extent:
       Definition: The extent of the work. if it's a parttime(deltid) or fulltime(heltid) job
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#extent
   occupationCategories:
       Definition: Shows the level1 and level2 occupational categories for a job
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#occupationCategories
   positioncount:
       Definition: Positions availible for a job
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#positioncount
   sector:
       Definition: Shows the sector of a job and if it's for a public(offentlig) or private(privat) company
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#sector
   source:
       Definition: Shows the source of the job ad
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#source
   sourceurl:
       Definition: A url redirecting to the source of a job ad
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#sourceurl
   uuid:
       Definition: Nav unique identifier for job ads
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#uuid
   workLocations:
       Definition: Information about the work location
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#workLocations
   level1:
       Definition: one of the ocupational categoriy tags used by nav's search filtering
-       URI:
+       URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#level1
   level2:
       Definition: the secon occupational cateogry tag used by nav's search filtering
-      URI:
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#level2
