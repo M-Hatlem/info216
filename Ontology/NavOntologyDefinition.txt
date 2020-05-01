@@ -14,6 +14,9 @@ Schema overview:
   positioncount:
       Definition: Positions availible for a job
       URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#positioncount
+  relatedCourse:
+      Defition: Show related courses to a job
+      URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#relatedCourse
   sector:
       Definition: Shows the sector of a job and if it's for a public(offentlig) or private(privat) company
       URI:https://github.com/M-Hatlem/info216/edit/master/Ontology/NavOntologyDefinition.txt#sector
