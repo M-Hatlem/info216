@@ -1,0 +1,52 @@
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix ex: <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#jobOccupations> skos:narrowerTransitive ex:Agriculture_Food_and_Natural_Resources,
+        ex:Arts_Audio_Video_Technology_and_Communications ,
+        ex:Architecture_and_Construction ,
+        ex:Business_Management_and_Administration ,
+        ex:Education_and_Training ,
+        ex:Finance ,
+        ex:Government_and_Public_Administration ,
+        ex:Health_Science ,
+        ex:Hospitality_and_Tourism ,
+        ex:Human_Services ,
+        ex:Information_Technology ,
+        ex:Law_Public_Safety_Corrections_and_Security ,
+        ex:Manufacturing ,
+        ex:Marketing_Sales_and_Service ,
+        ex:Science_Technology_Engineering_and_Mathematics ,
+        ex:Transportation_Distribution_and_Logistics .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Information_Technology> rdfs:subClassOf ex:jobOccupations ;
+    skos:altLable ex:Informasjons_og_kommunikasjonsteknologi ,
+        ex:EDB ,
+        ex:elektronisk_databehandling ,
+        ex:Computer_Sciences ;
+    skos:narrowerTransitive ex:Development ,
+        ex:Design ,
+        ex:IKT_Service .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Development> rdfs:subClassOf ex:Information_Technology ;
+    skos:altLable ex:Programmerer ;
+    skos:narrowerTransitive ex:Javascript_Developer ,
+        ex:Python_programmer ,
+        ex:Systemutvikler_lsningsarkitekt ,
+        ex:Software_Developer ,
+        ex:Full_stack-dev .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Design> rdfs:subClassOf ex:Information_Technology ;
+    skos:narrowerTransitive ex:Interaction_designer ,
+        ex:itx_designer .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#IKT_Service> rdfs:subClassOf ex:Information_Technology ;
+    skos:altLable ex:Informasjons_og_kommunikasjonsteknologi_servicefag ;
+    skos:narrowerTransitive ex:IKT_Tehnician ,
+        ex:server_maintinance .
