@@ -87,11 +87,11 @@ class NavData:
                     self.graph.add((ns[unique_key], ns[graph_predicate], ns[graph_predicate + "-uid-" + unique_key]))
                     for dict_data_from_list in job_ad[graph_predicate]:
                         for elm_in_list in dict_data_from_list:
-                            if (elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "city") and dict_data_from_list[elm_in_list] is not None:
+                            if elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "city":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
                             elif elm_in_list == "postalCode":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
-                            elif elm_in_list == "municipal" and dict_data_from_list[elm_in_list] is not None:
+                            elif elm_in_list == "municipal":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp["municipality"], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
                             elif elm_in_list == "address":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], sch[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
@@ -101,9 +101,9 @@ class NavData:
                     self.graph.add((ns[unique_key], ns[graph_predicate], ns[graph_predicate + "-uid-" + unique_key]))
                     job_data_dict = job_ad[graph_predicate]
                     for dict_data_from_dict in job_data_dict:
-                        if dict_data_from_dict == "description" and job_data_dict[dict_data_from_dict] is not None:
+                        if dict_data_from_dict == "description":
                             self.graph.add((ns[graph_predicate + "-uid-" + unique_key], sch[dict_data_from_dict], Literal(self.clean_html_tags(job_data_dict[dict_data_from_dict]))))
-                        elif dict_data_from_dict == "name" and job_data_dict[dict_data_from_dict] is not None:
+                        elif dict_data_from_dict == "name":
                             self.graph.add((ns[graph_predicate + "-uid-" + unique_key], sch[dict_data_from_dict], ns[self.clean_text(job_data_dict[dict_data_from_dict])]))
                         elif dict_data_from_dict == "homepage":
                             self.graph.add((ns[graph_predicate + "-uid-" + unique_key], sch["url"], Literal(job_data_dict[dict_data_from_dict], datatype=XSD.link)))
@@ -111,17 +111,17 @@ class NavData:
                             self.graph.add((ns[graph_predicate + "-uid-" + unique_key], sch["identifier"], Literal(job_data_dict[dict_data_from_dict])))
                         else:
                             self.graph.add((ns[graph_predicate + "-uid-" + unique_key], ns[dict_data_from_dict], Literal(job_data_dict[dict_data_from_dict])))
-                elif graph_predicate == "description" and job_ad[graph_predicate] is not None:
+                elif graph_predicate == "description":
                     self.graph.add((ns[unique_key], sch[graph_predicate], Literal(self.clean_html_tags(job_ad[graph_predicate]))))
                 elif graph_predicate == "updated":
                     self.graph.add((ns[unique_key], sch["dateModified"], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
                 elif graph_predicate == "sourceurl":
                     self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.link)))
-                elif graph_predicate == "title" and job_ad[graph_predicate] is not None:
+                elif graph_predicate == "title":
                     self.graph.add((ns[unique_key], sch[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
-                elif graph_predicate == "jobtitle" and job_ad[graph_predicate] is not None:
+                elif graph_predicate == "jobtitle":
                     self.graph.add((ns[unique_key], sch["jobTitle"], ns[self.clean_text(job_ad[graph_predicate])]))
-                elif graph_predicate == "engagementtype" and job_ad[graph_predicate] is not None:
+                elif graph_predicate == "engagementtype":
                     self.graph.add((ns[unique_key], sch["employmentType"], ns[self.clean_text(job_ad[graph_predicate])]))
                 elif graph_predicate == "expires":
                     self.graph.add((ns[unique_key], sch[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
@@ -133,10 +133,10 @@ class NavData:
                     self.graph.add((ns[unique_key], sch["datePosted"], Literal(job_ad[graph_predicate], datatype=XSD.datetime)))
                 elif graph_predicate == "link":
                     self.graph.add((ns[unique_key], sch["relatedLink"], Literal(job_ad[graph_predicate], datatype=XSD.link)))
-                elif type(job_ad[graph_predicate]) is str and job_ad[graph_predicate] is not None:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
+                elif graph_predicate == "positioncount":
+                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate], datatype=XSD.int)))
                 else:
-                    self.graph.add((ns[unique_key], ns[graph_predicate], Literal(job_ad[graph_predicate])))
+                    self.graph.add((ns[unique_key], ns[graph_predicate], ns[self.clean_text(job_ad[graph_predicate])]))
             # break  # Dev option to test run on only one ad remove # on #break
         interface.status.set("Lifting complete")
         interface.gui.update_idletasks()
@@ -145,6 +145,8 @@ class NavData:
     # This function removes html tags and new lines from the description of the ads
     @staticmethod
     def clean_html_tags(in_data):
+        if in_data is None:
+            return "None"
         soup = BeautifulSoup(in_data, 'html.parser')
         out_data = soup.get_text()
         out_data = out_data.replace("\r", "")
@@ -154,6 +156,8 @@ class NavData:
     # This function removes new lines, ' and " from the strings to make them URL friendly
     @staticmethod
     def clean_text(in_data):
+        if in_data is None:
+            return "None"
         in_data = re.sub(' ', '_', in_data)
         out_data = re.sub('[^A-Za-z0-9_æøåÆØÅ]+', '', in_data)
         return out_data
@@ -164,6 +168,8 @@ class NavData:
 
     # This function allows you to load a turtle file you previously serialized into the graph, requires the name of the file to load
     def load_serialized_data(self, filename):
+        interface.status.set("Loading data please wait...")
+        interface.gui.update_idletasks()
         self.graph.parse(filename, format="turtle")
         interface.query_mode()
 
@@ -172,7 +178,7 @@ class NavData:
         query_res = self.graph.query(statement)
         q_res_txt = ""
         for row in query_res:
-            q_res_txt = q_res_txt + "%s %s %s" % row + "\n"
+            q_res_txt = q_res_txt + "%s %s %s %s" % row + "\n"
         q_res_txt = q_res_txt.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
         q_res_txt = q_res_txt.replace("_", " ")
         interface.result_text.set(q_res_txt)
@@ -230,8 +236,10 @@ class TKinterGui:
             tkinter.Label(self.gui, text="Search:").pack()
             search_fld = tkinter.Entry(self.gui, width=50)
             search_fld.pack()
-            search_btn = tkinter.Button(text='Search', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city WHERE { ex:" + nav.clean_text(search_fld.get()) + " skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city }"))
-            search_btn.pack()
+            job_search_btn = tkinter.Button(text='Search', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { {ex:" + nav.clean_text(search_fld.get()) + " skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } UNION { ?altlable skos:altLable  ex:" + nav.clean_text(search_fld.get()) + " . ?altlable skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } }"))
+            job_search_btn.pack()
+            course_search_btn = tkinter.Button(text='Search for course', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { ?jobtitle ex:relatedCourse ex:" + nav.clean_text(search_fld.get()) + " . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . }"))
+            course_search_btn.pack()
         container = tkinter.Frame(self.gui)
         canvas = tkinter.Canvas(container)
         scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
@@ -251,4 +259,4 @@ if __name__ == "__main__":
     interface = TKinterGui()
     interface.gui.mainloop()
     # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
-    # TODO add option to search on UIB's sv faculty study lines and get possible jobs for a student with x degree
+    # TODO add GUI to search on UIB's sv faculty study lines and get possible jobs for a student with x degree

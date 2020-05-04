@@ -29,6 +29,7 @@
     skos:altLable ex:Informasjons_og_kommunikasjonsteknologi ,
         ex:EDB ,
         ex:elektronisk_databehandling ,
+        ex:IT ,
         ex:Computer_Sciences ;
     skos:narrowerTransitive ex:Development ,
         ex:Design ,
@@ -38,6 +39,7 @@
     skos:altLable ex:Programmerer ;
     skos:narrowerTransitive ex:Javascript_Developer ,
         ex:Python_programmer ,
+        ex:Java:programemr ,
         ex:Systemutvikler_lsningsarkitekt ,
         ex:Software_Developer ,
         ex:Full_stack-dev .
@@ -50,3 +52,6 @@
     skos:altLable ex:Informasjons_og_kommunikasjonsteknologi_servicefag ;
     skos:narrowerTransitive ex:IKT_Tehnician ,
         ex:server_maintinance .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Python_programmer> ex:relatedCourse ex:info132 ,
+        ex:info135.
