@@ -7,6 +7,7 @@ import requests
 import json
 import re
 import owlrl.RDFSClosure
+from threading import Thread
 from jsonmerge import Merger
 from rdflib import Graph, Namespace, Literal
 from rdflib.namespace import XSD
@@ -72,7 +73,7 @@ class NavData:
 
     # This function lifts the data downloaded from nav into rdf triples
     def lift_data(self):
-        interface.status.set("Download complete, lifting data please wait...:")
+        interface.status.set("Finished loading/downloading " + str(len(self.data['content'])) + " job ads \n lifting data please wait...:")
         interface.gui.update_idletasks()
         ns = Namespace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#")
         self.graph.bind("ex", ns)
@@ -90,7 +91,7 @@ class NavData:
                             if elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "city":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
                             elif elm_in_list == "postalCode":
-                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
+                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], Literal(dict_data_from_list[elm_in_list], datatype=XSD.zipcode)))
                             elif elm_in_list == "municipal":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp["municipality"], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
                             elif elm_in_list == "address":
@@ -178,7 +179,7 @@ class NavData:
         query_res = self.graph.query(statement)
         q_res_txt = ""
         for row in query_res:
-            q_res_txt = q_res_txt + "%s %s %s %s" % row + "\n"
+            q_res_txt = q_res_txt + "%s \t %s \t %s \t %s" % row + "\n"
         q_res_txt = q_res_txt.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
         q_res_txt = q_res_txt.replace("_", " ")
         interface.result_text.set(q_res_txt)
@@ -197,21 +198,26 @@ class TKinterGui:
         self.result = tkinter.Label(self.gui, textvariable=self.result_text, justify='left')
         menu = tkinter.Menu(self.gui)
         self.gui.config(menu=menu)
+        download_thread = Thread(target=nav.download_data)
+        load_json_thread = Thread(target=nav.load_json, args=("data.json",))
+        save_json_thread = Thread(target=nav.save_json, args=("data.json",))
+        load_ttl_thread = Thread(target=nav.load_serialized_data, args=('nav_triples.ttl',))
+        save_ttl_thread = Thread(target=nav.serialize, args=('nav_triples.ttl',))
         importmenu = tkinter.Menu(self.gui)
         menu.add_cascade(label="Import file", menu=importmenu)
-        importmenu.add_command(label='Import JSON file', command=lambda: nav.load_json("data.json"))
-        importmenu.add_command(label='Import Turtle file', command=lambda: nav.load_serialized_data('nav_triples.ttl'))
+        importmenu.add_command(label='Import JSON file', command=lambda: [download_btn.place_forget(),  load_json_thread.start()])
+        importmenu.add_command(label='Import Turtle file', command=lambda: [download_btn.place_forget(), load_ttl_thread.start()])
         savemenu = tkinter.Menu(self.gui)
         menu.add_cascade(label="Save data", menu=savemenu)
-        savemenu.add_command(label='Save JSON file', command=lambda: nav.save_json("data.json"))
-        savemenu.add_command(label='Save Turtle file', command=lambda: nav.serialize('nav_triples.ttl'))
+        savemenu.add_command(label='Save JSON file', command=lambda: save_json_thread.start())
+        savemenu.add_command(label='Save Turtle file', command=lambda: save_ttl_thread.start())
         settingsmenu = tkinter.Menu(self.gui)
         menu.add_cascade(label="Settings", menu=settingsmenu)
         settingsmenu.add_command(label='Update token', command=self.update_token)
         settingsmenu.add_command(label='Re-download data', command=nav.download_data)
         self.status = tkinter.StringVar()
         tkinter.Label(self.gui, textvariable=self.status).place(relx=.5, rely=.3, anchor="center")
-        download_btn = tkinter.Button(text='Download data sets', command=lambda: [download_btn.place_forget(), nav.download_data()])
+        download_btn = tkinter.Button(text='Download data sets', command=lambda: [download_btn.place_forget(), download_thread.start()])
         download_btn.place(relx=.5, rely=.5, anchor="center")
 
     # Opens the page for updating your token, this can only be done if you have't entered query mode already as you already need valid data to do so. Will already show the latest token used by us, but can be changed
@@ -229,28 +235,27 @@ class TKinterGui:
         self.status.set("")
         interface.gui.update_idletasks()
         if self.q_mode_active is True:
-            self.result.destroy()
-            self.result_text = ""
+            self.result_text.set("")
         else:
             self.q_mode_active = True
             tkinter.Label(self.gui, text="Search:").pack()
             search_fld = tkinter.Entry(self.gui, width=50)
             search_fld.pack()
-            job_search_btn = tkinter.Button(text='Search', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { {ex:" + nav.clean_text(search_fld.get()) + " skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } UNION { ?altlable skos:altLable  ex:" + nav.clean_text(search_fld.get()) + " . ?altlable skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } }"))
+            job_search_btn = tkinter.Button(text='Search for job', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { {ex:" + nav.clean_text(search_fld.get()) + " skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } UNION { ?altlable skos:altLable  ex:" + nav.clean_text(search_fld.get()) + " . ?altlable skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } }"))
             job_search_btn.pack()
             course_search_btn = tkinter.Button(text='Search for course', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { ?jobtitle ex:relatedCourse ex:" + nav.clean_text(search_fld.get()) + " . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . }"))
             course_search_btn.pack()
-        container = tkinter.Frame(self.gui)
-        canvas = tkinter.Canvas(container)
-        scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
-        scrollable_frame = tkinter.Frame(canvas)
-        canvas.configure(scrollregion=canvas.bbox("all"))
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        container.pack()
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-        self.result = tkinter.Label(scrollable_frame, textvariable=self.result_text,  justify='left')
-        self.result.pack()
+            container = tkinter.Frame(self.gui)
+            canvas = tkinter.Canvas(container)
+            scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
+            scrollable_frame = tkinter.Frame(canvas)
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            container.pack()
+            canvas.pack(side="left", fill="both", expand=True)
+            scrollbar.pack(side="right", fill="y")
+            self.result = tkinter.Label(scrollable_frame, textvariable=self.result_text, justify='left')
+            self.result.pack()
 
 
 if __name__ == "__main__":
@@ -259,4 +264,4 @@ if __name__ == "__main__":
     interface = TKinterGui()
     interface.gui.mainloop()
     # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
-    # TODO add GUI to search on UIB's sv faculty study lines and get possible jobs for a student with x degree
+    # TODO Update gui fix scrollbar and make presentable, maybe just rewrite entire showcase frame?
