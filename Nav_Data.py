@@ -174,17 +174,6 @@ class NavData:
         self.graph.parse(filename, format="turtle")
         interface.query_mode()
 
-    # Runs queries on the graph
-    def query(self, statement):
-        query_res = self.graph.query(statement)
-        q_res_txt = ""
-        for row in query_res:
-            q_res_txt = q_res_txt + "%s \t %s \t %s \t %s" % row + "\n"
-        q_res_txt = q_res_txt.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
-        q_res_txt = q_res_txt.replace("_", " ")
-        interface.result_text.set(q_res_txt)
-        interface.gui.update_idletasks()
-
 
 # This class controls the GUI and everything displayed to the user
 class TKinterGui:
@@ -195,7 +184,7 @@ class TKinterGui:
         self.gui.title('Semantic job-searcher')
         self.gui.geometry("800x500")
         self.result_text = tkinter.StringVar()
-        self.result = tkinter.Label(self.gui, textvariable=self.result_text, justify='left')
+        self.canvas = None
         menu = tkinter.Menu(self.gui)
         self.gui.config(menu=menu)
         download_thread = Thread(target=nav.download_data)
@@ -241,27 +230,163 @@ class TKinterGui:
             tkinter.Label(self.gui, text="Search:").pack()
             search_fld = tkinter.Entry(self.gui, width=50)
             search_fld.pack()
-            job_search_btn = tkinter.Button(text='Search for job', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { {ex:" + nav.clean_text(search_fld.get()) + " skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } UNION { ?altlable skos:altLable  ex:" + nav.clean_text(search_fld.get()) + " . ?altlable skos:narrowerTransitive* ?jobtitle . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . } }"))
+            selected = {"article title": tkinter.BooleanVar(value=True), "start date": tkinter.BooleanVar(), "published": tkinter.BooleanVar(), "expires": tkinter.BooleanVar(), "last updated": tkinter.BooleanVar(), "application due": tkinter.BooleanVar(), "sector": tkinter.BooleanVar(), "extent": tkinter.BooleanVar(), "available positions": tkinter.BooleanVar(), "employer name": tkinter.BooleanVar(), "employer homepage": tkinter.BooleanVar(), "country": tkinter.BooleanVar(), "address": tkinter.BooleanVar(), "city": tkinter.BooleanVar(value=True), "county": tkinter.BooleanVar(), "municipal": tkinter.BooleanVar()}
+            job_search_btn = tkinter.Button(text='Search for job', command=lambda: find.setup_query(nav.clean_text(search_fld.get()), False, selected))
             job_search_btn.pack()
-            course_search_btn = tkinter.Button(text='Search for course', command=lambda: nav.query("SELECT ?articletitle ?jobtitle ?city ?link WHERE { ?jobtitle ex:relatedCourse ex:" + nav.clean_text(search_fld.get()) + " . ?job schema:jobTitle ?jobtitle . ?job schema:title ?articletitle . ?job ex:workLocations ?loc . ?loc dbpedia-owl:city ?city . ?job schema:relatedLink ?link . }"))
+            course_search_btn = tkinter.Button(text='Search for course', command=lambda: find.setup_query(nav.clean_text(search_fld.get()), True, selected))
             course_search_btn.pack()
+            select_frame = tkinter.Frame(self.gui)
+            sel_grid_row = 0
+            sel_grid_col = 0
+            for button in selected.keys():
+                tkinter.Checkbutton(select_frame, text=button, variable=selected[button]).grid(row=sel_grid_row, column=sel_grid_col)
+                sel_grid_col += 1
+                if sel_grid_col == 8:
+                    sel_grid_row += 1
+                    sel_grid_col = 0
+            select_frame.pack()
             container = tkinter.Frame(self.gui)
-            canvas = tkinter.Canvas(container)
-            scrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
-            scrollable_frame = tkinter.Frame(canvas)
-            canvas.configure(scrollregion=canvas.bbox("all"))
-            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            self.canvas = tkinter.Canvas(container, width=770)
+            yscrollbar = tkinter.Scrollbar(container, orient="vertical", command=self.canvas.yview)
+            xscrollbar = tkinter.Scrollbar(container, orient="horizontal", command=self.canvas.xview)
+            scrollable_frame = tkinter.Frame(self.canvas)
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            self.canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
             container.pack()
-            canvas.pack(side="left", fill="both", expand=True)
-            scrollbar.pack(side="right", fill="y")
-            self.result = tkinter.Label(scrollable_frame, textvariable=self.result_text, justify='left')
-            self.result.pack()
+            xscrollbar.pack(side="bottom", fill="x")
+            self.canvas.pack(side="left", fill="both", expand=True)
+            yscrollbar.pack(side="right", fill="y")
+
+
+# This class deals with the SPARQL queries
+class Search:
+
+    # Runs queries on the graph
+    @staticmethod
+    def query(statement, selected):
+        print(statement)
+        query_res = nav.graph.query(statement)
+        q_res_txt = ""
+        splitter = ""
+        for item in selected:
+            splitter = splitter + "%s \t"
+        for row in query_res:
+            q_res_txt = q_res_txt + splitter % row + "\n"
+        q_res_txt = q_res_txt.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
+        q_res_txt = q_res_txt.replace("_", " ")
+        print(q_res_txt)
+
+    # Sets up a query depending on what a user is looking for
+    def setup_query(self, searchword, course, findings):
+        args = 0
+        included = []
+        if course is True:
+            select = "SELECT DISTINCT ?jobtitle"
+            query = " WHERE { ?jobtitle ex:relatedCourse ex:" + searchword + " . ?job schema:jobTitle ?jobtitle . ?job ex:workLocations ?loc . ?job ex:employer ?emp ."
+            args += 1
+            included.append("job title")
+        else:
+            select = "SELECT DISTINCT ?jobtitle"
+            query = " ?job schema:jobTitle ?jobtitle . ?job ex:workLocations ?loc . ?job ex:employer ?emp ."
+            args += 1
+            included.append("job title")
+        if findings["article title"].get() is True:
+            select = select + " ?articletitle"
+            query = query + " ?job schema:title ?articletitle ."
+            args += 1
+            included.append("article title")
+        if findings["start date"].get() is True:
+            select = select + " ?startdate"
+            query = query + " ?job schema:jobStartDate ?startdate ."
+            args += 1
+            included.append("start date")
+        if findings["published"].get() is True:
+            select = select + " ?published"
+            query = query + " ?job schema:datePosted ?published ."
+            args += 1
+            included.append("published")
+        if findings["expires"].get() is True:
+            select = select + " ?expires"
+            query = query + " ?job schema:expires ?expires ."
+            args += 1
+            included.append("expires")
+        if findings["last updated"].get() is True:
+            select = select + " ?lastupdated"
+            query = query + " ?job schema:dateModified ?lastupdated ."
+            args += 1
+            included.append("last updated")
+        if findings["application due"].get() is True:
+            select = select + " ?applicationdue"
+            query = query + " ?job schema:applicationDeadline ?applicationdue ."
+            args += 1
+            included.append("application due")
+        if findings["sector"].get() is True:
+            select = select + " ?sector"
+            query = query + " ?job ex:sector ?sector ."
+            args += 1
+            included.append("sector")
+        if findings["extent"].get() is True:
+            select = select + " ?extent"
+            query = query + " ?job ex:extent ?extent ."
+            args += 1
+            included.append("extent")
+        if findings["available positions"].get() is True:
+            select = select + " ?availablepositions"
+            query = query + " ?job ex:positioncount ?availablepositions ."
+            args += 1
+            included.append("available positions")
+        if findings["employer name"].get() is True:
+            select = select + " ?employername"
+            query = query + " ?emp  schema:name ?employername ."
+            args += 1
+            included.append("employer name")
+        if findings["employer homepage"].get() is True:
+            select = select + " ?employerhomepage"
+            query = query + " ?emp  schema:url ?employerhomepage ."
+            args += 1
+            included.append("employer homepage")
+        if findings["country"].get() is True:
+            select = select + " ?country"
+            query = query + " ?loc  dbpedia-owl:country ?country ."
+            args += 1
+            included.append("country")
+        if findings["address"].get() is True:
+            select = select + " ?address"
+            query = query + " ?loc  schema:address ?address ."
+            args += 1
+            included.append("address")
+        if findings["city"].get() is True:
+            select = select + " ?city"
+            query = query + " ?loc dbpedia-owl:city ?city ."
+            args += 1
+            included.append("city")
+        if findings["county"].get() is True:
+            select = select + " ?county"
+            query = query + " ?loc dbpedia-owl:county ?county ."
+            args += 1
+            included.append("county")
+        if findings["municipal"].get() is True:
+            select = select + " ?municipal"
+            query = query + " ?loc dbpedia-owl:municipality ?municipal ."
+            args += 1
+            included.append("municipal")
+        select = select + " ?link"
+        query = query + " ?job schema:relatedLink ?link ."
+        args += 1
+        included.append("link")
+        if course is True:
+            self.query(select + query + " }", included)
+        else:
+            self.query(select + " WHERE { {ex:" + searchword + " skos:narrowerTransitive* ?jobtitle . " + query + " } UNION { ?altlable skos:altLable ex:" + searchword + " . ?altlable skos:narrowerTransitive* ?jobtitle ." + query + " } }",  included)
 
 
 if __name__ == "__main__":
     api_public_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwdWJsaWMudG9rZW4udjFAbmF2Lm5vIiwiYXVkIjoiZmVlZC1hcGktdjEiLCJpc3MiOiJuYXYubm8iLCJpYXQiOjE1NTc0NzM0MjJ9.jNGlLUF9HxoHo5JrQNMkweLj_91bgk97ZebLdfx3_UQ'
     nav = NavData(api_public_token)
+    find = Search()
     interface = TKinterGui()
     interface.gui.mainloop()
     # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
     # TODO Update gui fix scrollbar and make presentable, maybe just rewrite entire showcase frame?
+    # TODO make link an "apply here" button
+    # TODO extra: Location job count
