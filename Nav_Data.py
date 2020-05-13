@@ -183,8 +183,7 @@ class TKinterGui:
         self.gui = tkinter.Tk()
         self.gui.title('Semantic job-searcher')
         self.gui.geometry("800x500")
-        self.result_text = tkinter.StringVar()
-        self.canvas = None
+        self.results = None
         menu = tkinter.Menu(self.gui)
         self.gui.config(menu=menu)
         download_thread = Thread(target=nav.download_data)
@@ -224,7 +223,7 @@ class TKinterGui:
         self.status.set("")
         interface.gui.update_idletasks()
         if self.q_mode_active is True:
-            self.result_text.set("")
+            self.clear_results()
         else:
             self.q_mode_active = True
             tkinter.Label(self.gui, text="Search:").pack()
@@ -246,16 +245,22 @@ class TKinterGui:
                     sel_grid_col = 0
             select_frame.pack()
             container = tkinter.Frame(self.gui)
-            self.canvas = tkinter.Canvas(container, width=770)
-            yscrollbar = tkinter.Scrollbar(container, orient="vertical", command=self.canvas.yview)
-            xscrollbar = tkinter.Scrollbar(container, orient="horizontal", command=self.canvas.xview)
-            scrollable_frame = tkinter.Frame(self.canvas)
-            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-            self.canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            canvas = tkinter.Canvas(container, width=770)
+            yscrollbar = tkinter.Scrollbar(container, orient="vertical", command=canvas.yview)
+            xscrollbar = tkinter.Scrollbar(container, orient="horizontal", command=canvas.xview)
+            self.results = tkinter.Frame(canvas)
+            canvas.configure(scrollregion=canvas.bbox("all"))
+            canvas.create_window((0, 0), window=self.results, anchor="nw")
             container.pack()
             xscrollbar.pack(side="bottom", fill="x")
-            self.canvas.pack(side="left", fill="both", expand=True)
+            canvas.pack(side="left", expand=True)
             yscrollbar.pack(side="right", fill="y")
+
+    # Removes the old results when searching for something new
+    def clear_results(self):
+        for label in self.results.winfo_children():
+            label.destroy()
+        interface.gui.update_idletasks()
 
 
 # This class deals with the SPARQL queries
@@ -264,20 +269,28 @@ class Search:
     # Runs queries on the graph
     @staticmethod
     def query(statement, selected):
-        print(statement)
-        query_res = nav.graph.query(statement)
-        q_res_txt = ""
         splitter = ""
+        result_col = 0
+        result_row = 0
         for item in selected:
-            splitter = splitter + "%s \t"
-        for row in query_res:
-            q_res_txt = q_res_txt + splitter % row + "\n"
-        q_res_txt = q_res_txt.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
-        q_res_txt = q_res_txt.replace("_", " ")
-        print(q_res_txt)
+            splitter = splitter + "%s\t"
+            tkinter.Label(interface.results, text=item, relief="groove").grid(row=result_row, column=result_col, padx=4, sticky="WE")
+            result_col += 1
+        result_row += 1
+        for row in nav.graph.query(statement):
+            result_col = 0
+            res_txt = splitter % row
+            for col in res_txt.split("\t"):
+                col = col.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
+                col = col.replace("_", " ")
+                tkinter.Label(interface.results, text=col, relief="groove").grid(row=result_row, column=result_col, padx=4, sticky="WE")
+                result_col += 1
+            result_row += 1
+        interface.gui.update_idletasks()
 
     # Sets up a query depending on what a user is looking for
     def setup_query(self, searchword, course, findings):
+        interface.clear_results()
         args = 0
         included = []
         if course is True:
@@ -387,6 +400,5 @@ if __name__ == "__main__":
     interface = TKinterGui()
     interface.gui.mainloop()
     # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
-    # TODO Update gui fix scrollbar and make presentable, maybe just rewrite entire showcase frame?
     # TODO make link an "apply here" button
     # TODO extra: Location job count
