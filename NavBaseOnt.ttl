@@ -33,6 +33,9 @@
         ex:Computer_Sciences ;
     skos:narrowerTransitive ex:Development ,
         ex:Design ,
+        ex:Konsulent,
+        ex:Tester,
+        ex:IT_Admin,
         ex:IKT_Service .
 
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Development> rdfs:subClassOf ex:Information_Technology ;
@@ -42,7 +45,8 @@
         ex:Applikasjonsutvikler ,
         ex:Software_Developer ,
         ex:Developer ;
-    skos:narrowerTransitive ex:Javascript_Developer ,
+    skos:narrowerTransitive ex:IT_Architect ,
+        ex:Javascript_Developer ,
         ex:Frontend_developer ,
         ex:NET_utvikler ,
         ex:SW_Utviklere_IDS1520 ,
@@ -87,10 +91,12 @@
         ex:Software_Developer ,
         ex:Full_stack-dev .
 
-<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Design> rdfs:subClassOf ex:Development ;
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#IT_Architect> rdfs:subClassOf ex:Development ;
     skos:altLable ex:Engineer ,
+        ex:Arktiekt,
         ex:Software_Ingeniør ,
         ex:Systemarkitekt ,
+        ex:Architect ,
         ex:Ingeniør ;
     skos:narrowerTransitive ex:IT_systems_engineer ,
         ex:Ingeniør_Automatisering ,

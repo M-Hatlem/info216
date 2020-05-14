@@ -4,6 +4,7 @@
 # requires jsonmerge, download at: pip install jsonmerge
 # requires owlrl, download at: pip install owlrl
 import requests
+import webbrowser
 import json
 import re
 import owlrl.RDFSClosure
@@ -274,16 +275,22 @@ class Search:
         result_row = 0
         for item in selected:
             splitter = splitter + "%s\t"
-            tkinter.Label(interface.results, text=item, relief="groove").grid(row=result_row, column=result_col, padx=4, sticky="WE")
+            tkinter.Label(interface.results, text=item, relief="solid", bg="gainsboro").grid(row=result_row, column=result_col, padx=2, sticky="WE")
             result_col += 1
         result_row += 1
         for row in nav.graph.query(statement):
             result_col = 0
             res_txt = splitter % row
             for col in res_txt.split("\t"):
-                col = col.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#", "")
+                col = col.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#",
+                                  "")
                 col = col.replace("_", " ")
-                tkinter.Label(interface.results, text=col, relief="groove").grid(row=result_row, column=result_col, padx=4, sticky="WE")
+                if col == "":
+                    pass
+                elif result_col == selected.index("link"):
+                    tkinter.Button(interface.results, text="Apply here!", command=lambda col=col: webbrowser.open(col, new=2)).grid(row=result_row, column=result_col, padx=2, sticky="WE")
+                else:
+                    tkinter.Label(interface.results, text=col, relief="groove").grid(row=result_row, column=result_col, padx=2, sticky="WE")
                 result_col += 1
             result_row += 1
         interface.gui.update_idletasks()
@@ -291,101 +298,81 @@ class Search:
     # Sets up a query depending on what a user is looking for
     def setup_query(self, searchword, course, findings):
         interface.clear_results()
-        args = 0
         included = []
         if course is True:
             select = "SELECT DISTINCT ?jobtitle"
             query = " WHERE { ?jobtitle ex:relatedCourse ex:" + searchword + " . ?job schema:jobTitle ?jobtitle . ?job ex:workLocations ?loc . ?job ex:employer ?emp ."
-            args += 1
             included.append("job title")
         else:
             select = "SELECT DISTINCT ?jobtitle"
             query = " ?job schema:jobTitle ?jobtitle . ?job ex:workLocations ?loc . ?job ex:employer ?emp ."
-            args += 1
             included.append("job title")
         if findings["article title"].get() is True:
             select = select + " ?articletitle"
             query = query + " ?job schema:title ?articletitle ."
-            args += 1
             included.append("article title")
         if findings["start date"].get() is True:
             select = select + " ?startdate"
             query = query + " ?job schema:jobStartDate ?startdate ."
-            args += 1
             included.append("start date")
         if findings["published"].get() is True:
             select = select + " ?published"
             query = query + " ?job schema:datePosted ?published ."
-            args += 1
             included.append("published")
         if findings["expires"].get() is True:
             select = select + " ?expires"
             query = query + " ?job schema:expires ?expires ."
-            args += 1
             included.append("expires")
         if findings["last updated"].get() is True:
             select = select + " ?lastupdated"
             query = query + " ?job schema:dateModified ?lastupdated ."
-            args += 1
             included.append("last updated")
         if findings["application due"].get() is True:
             select = select + " ?applicationdue"
             query = query + " ?job schema:applicationDeadline ?applicationdue ."
-            args += 1
             included.append("application due")
         if findings["sector"].get() is True:
             select = select + " ?sector"
             query = query + " ?job ex:sector ?sector ."
-            args += 1
             included.append("sector")
         if findings["extent"].get() is True:
             select = select + " ?extent"
             query = query + " ?job ex:extent ?extent ."
-            args += 1
             included.append("extent")
         if findings["available positions"].get() is True:
             select = select + " ?availablepositions"
             query = query + " ?job ex:positioncount ?availablepositions ."
-            args += 1
             included.append("available positions")
         if findings["employer name"].get() is True:
             select = select + " ?employername"
             query = query + " ?emp  schema:name ?employername ."
-            args += 1
             included.append("employer name")
         if findings["employer homepage"].get() is True:
             select = select + " ?employerhomepage"
             query = query + " ?emp  schema:url ?employerhomepage ."
-            args += 1
             included.append("employer homepage")
         if findings["country"].get() is True:
             select = select + " ?country"
             query = query + " ?loc  dbpedia-owl:country ?country ."
-            args += 1
             included.append("country")
         if findings["address"].get() is True:
             select = select + " ?address"
             query = query + " ?loc  schema:address ?address ."
-            args += 1
             included.append("address")
         if findings["city"].get() is True:
             select = select + " ?city"
             query = query + " ?loc dbpedia-owl:city ?city ."
-            args += 1
             included.append("city")
         if findings["county"].get() is True:
             select = select + " ?county"
             query = query + " ?loc dbpedia-owl:county ?county ."
-            args += 1
             included.append("county")
         if findings["municipal"].get() is True:
             select = select + " ?municipal"
             query = query + " ?loc dbpedia-owl:municipality ?municipal ."
-            args += 1
             included.append("municipal")
         select = select + " ?link"
         query = query + " ?job schema:relatedLink ?link ."
-        args += 1
         included.append("link")
         if course is True:
             self.query(select + query + " }", included)
@@ -399,6 +386,3 @@ if __name__ == "__main__":
     find = Search()
     interface = TKinterGui()
     interface.gui.mainloop()
-    # TODO Add Dbpedia integration for linking to info about cities/countries/etc.
-    # TODO make link an "apply here" button
-    # TODO extra: Location job count
