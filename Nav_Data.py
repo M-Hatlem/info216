@@ -80,8 +80,10 @@ class NavData:
         self.graph.bind("ex", ns)
         sch = Namespace("http://schema.org/")
         self.graph.bind("schema", sch)
-        dbp = Namespace("http://dbpedia.org/ontology/")
-        self.graph.bind("dbpedia-owl", dbp)
+        dbp_ont = Namespace("http://dbpedia.org/ontology/")
+        self.graph.bind("dbpedia-owl", dbp_ont)
+        dbp_res = Namespace("http://dbpedia.org/resource/")
+        self.graph.bind("dbpedia-owl", dbp_res)
         for job_ad in self.data['content']:
             unique_key = job_ad['uuid']
             for graph_predicate in job_ad:
@@ -90,11 +92,11 @@ class NavData:
                     for dict_data_from_list in job_ad[graph_predicate]:
                         for elm_in_list in dict_data_from_list:
                             if elm_in_list == "country" or elm_in_list == "county" or elm_in_list == "city":
-                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
+                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp_ont[elm_in_list], dbp_res[self.clean_text(dict_data_from_list[elm_in_list])]))
                             elif elm_in_list == "postalCode":
-                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp[elm_in_list], Literal(dict_data_from_list[elm_in_list], datatype=XSD.zipcode)))
+                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp_ont[elm_in_list], Literal(dict_data_from_list[elm_in_list], datatype=XSD.zipcode)))
                             elif elm_in_list == "municipal":
-                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp["municipality"], ns[self.clean_text(dict_data_from_list[elm_in_list])]))
+                                self.graph.add((ns[graph_predicate + "-uid-" + unique_key], dbp_ont["municipality"], dbp_res[self.clean_text(dict_data_from_list[elm_in_list])]))
                             elif elm_in_list == "address":
                                 self.graph.add((ns[graph_predicate + "-uid-" + unique_key], sch[elm_in_list], Literal(dict_data_from_list[elm_in_list])))
                             else:
@@ -160,6 +162,7 @@ class NavData:
     def clean_text(in_data):
         if in_data is None:
             return "None"
+        in_data = in_data.capitalize()
         in_data = re.sub(' ', '_', in_data)
         out_data = re.sub('[^A-Za-z0-9_æøåÆØÅ]+', '', in_data)
         return out_data
@@ -188,8 +191,8 @@ class TKinterGui:
         menu = tkinter.Menu(self.gui)
         self.gui.config(menu=menu)
         download_thread = Thread(target=nav.download_data)
-        load_json_thread = Thread(target=nav.load_json, args=("data.json",))
-        save_json_thread = Thread(target=nav.save_json, args=("data.json",))
+        load_json_thread = Thread(target=nav.load_json, args=("nav_data.json",))
+        save_json_thread = Thread(target=nav.save_json, args=("nav_data.json",))
         load_ttl_thread = Thread(target=nav.load_serialized_data, args=('nav_triples.ttl',))
         save_ttl_thread = Thread(target=nav.serialize, args=('nav_triples.ttl',))
         importmenu = tkinter.Menu(self.gui)
@@ -268,11 +271,26 @@ class TKinterGui:
 class Search:
 
     # Runs queries on the graph
-    @staticmethod
-    def query(statement, selected):
+    def query(self, statement, selected):
         splitter = ""
         result_col = 0
         result_row = 0
+        try:
+            city_ind = selected.index("city")
+        except ValueError:
+            city_ind = None
+        try:
+            county_ind = selected.index("county")
+        except ValueError:
+            county_ind = None                                                                                                           
+        try:
+            country_ind = selected.index("country")
+        except ValueError:
+            country_ind = None
+        try:
+            municipal_ind = selected.index("municipal")
+        except ValueError:
+            municipal_ind = None
         for item in selected:
             splitter = splitter + "%s\t"
             tkinter.Label(interface.results, text=item, relief="solid", bg="gainsboro").grid(row=result_row, column=result_col, padx=2, sticky="WE")
@@ -282,18 +300,33 @@ class Search:
             result_col = 0
             res_txt = splitter % row
             for col in res_txt.split("\t"):
-                col = col.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#",
-                                  "")
+                col = col.replace("https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#",  "")
                 col = col.replace("_", " ")
                 if col == "":
                     pass
+                elif col == "None":
+                    tkinter.Label(interface.results, text="Missing data", relief="groove").grid(row=result_row, column=result_col, padx=2, sticky="WE")
+                elif result_col == city_ind or result_col == county_ind or result_col == country_ind or result_col == municipal_ind:
+                    self.dbp_link(col, result_row, result_col)
                 elif result_col == selected.index("link"):
-                    tkinter.Button(interface.results, text="Apply here!", command=lambda col=col: webbrowser.open(col, new=2)).grid(row=result_row, column=result_col, padx=2, sticky="WE")
+                    tkinter.Button(interface.results, text="Apply here!", command=lambda url=col: webbrowser.open(url, new=2)).grid(row=result_row, column=result_col, padx=2, sticky="WE")
                 else:
                     tkinter.Label(interface.results, text=col, relief="groove").grid(row=result_row, column=result_col, padx=2, sticky="WE")
                 result_col += 1
             result_row += 1
         interface.gui.update_idletasks()
+
+    # Links a text piece to dbpedia
+    @staticmethod
+    def dbp_link(col, result_row, result_col):
+        display_name = col.replace("http://dbpedia.org/resource/", "")
+        if display_name != "None":
+            link = tkinter.Label(interface.results, text=display_name,  fg="blue", cursor="hand2", relief="groove", underline=1)
+            link.grid(row=result_row, column=result_col, padx=2, sticky="WE")
+            col = col.replace(" ", "_")
+            link.bind("<Button-1>", lambda e: webbrowser.open(col, new=2))
+        else:
+            tkinter.Label(interface.results, text="Missing data", relief="groove").grid(row=result_row, column=result_col, padx=2, sticky="WE")
 
     # Sets up a query depending on what a user is looking for
     def setup_query(self, searchword, course, findings):
@@ -301,7 +334,7 @@ class Search:
         included = []
         if course is True:
             select = "SELECT DISTINCT ?jobtitle"
-            query = " WHERE { ?jobtitle ex:relatedCourse ex:" + searchword + " . ?job schema:jobTitle ?jobtitle . ?job ex:workLocations ?loc . ?job ex:employer ?emp ."
+            query = " WHERE { ?jobtitle ex:relatedCourse ex:" + searchword.capitalize() + " . ?job schema:jobTitle ?jobtitle . ?job ex:workLocations ?loc . ?job ex:employer ?emp ."
             included.append("job title")
         else:
             select = "SELECT DISTINCT ?jobtitle"
@@ -377,7 +410,7 @@ class Search:
         if course is True:
             self.query(select + query + " }", included)
         else:
-            self.query(select + " WHERE { {ex:" + searchword + " skos:narrowerTransitive* ?jobtitle . " + query + " } UNION { ?altlable skos:altLable ex:" + searchword + " . ?altlable skos:narrowerTransitive* ?jobtitle ." + query + " } }",  included)
+            self.query(select + " WHERE { {ex:" + searchword.capitalize() + " skos:narrowerTransitive* ?jobtitle . " + query + " } UNION { ?altlable skos:altLable ex:" + searchword.capitalize() + " . ?altlable skos:narrowerTransitive* ?jobtitle ." + query + " } }",  included)
 
 
 if __name__ == "__main__":
