@@ -256,3 +256,8 @@
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Uxui_designer> ex:relatedCourse ex:Info162, 
         ex:Info262 .
 
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Machinelearningengineer> ex:relatedCourse ex:Info180, 
+        ex:Info284 .
+
+
+
