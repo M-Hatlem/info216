@@ -45,7 +45,7 @@
         ex:Applikasjonsutvikler ,
         ex:Software_developer ,
         ex:Developer ;
-    skos:narrowerTransitive ex:IT_Architect ,
+    skos:narrowerTransitive ex:It_architect ,
         ex:Javascript_developer ,
         ex:Frontend_developer ,
         ex:NET_utvikler ,
