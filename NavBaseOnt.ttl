@@ -133,7 +133,7 @@
         ex:Senior_fpga_Designer ,
         ex:Web_systemutvikler_designere ,
         ex:Grafisk_designer ,
-        ex:Ux_tesearcher ,
+        ex:Ux_reasearcher ,
         ex:3d_Visualization_software_engineers_architects ,
         ex:Konseptutvikler ,
         ex:Itx_designer .
