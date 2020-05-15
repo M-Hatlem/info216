@@ -242,3 +242,16 @@
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Software_Developer> ex:relatedCourse ex:Info134 ,
         ex:Info132 ,
         ex:Info135 .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Systemutvikler> ex:relatedCourse ex:Info212 ,
+        ex:Info216 ,
+        ex:Info134 .
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#UX-designer> ex:relatedCourse ex:Info162, 
+        ex:Info262
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Interaction_designer> ex:relatedCourse ex:Info162, 
+        ex:Info262
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Uxui_designer> ex:relatedCourse ex:Info162, 
+        ex:Info262
+
