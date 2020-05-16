@@ -241,21 +241,48 @@
 
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Software_developer> ex:relatedCourse ex:Info134 ,
         ex:Info132 ,
-        ex:Info135 .
+        ex:Info135 ,
+        ex:Info212 .
 
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Systemutvikler> ex:relatedCourse ex:Info212 ,
         ex:Info216 ,
         ex:Info134 .
 
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Ux_designer> ex:relatedCourse ex:Info162, 
-        ex:Info262 .
+        ex:Info262  ,
+        ex:Info263.
 
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Interaction_designer> ex:relatedCourse ex:Info162, 
-        ex:Info262 .
+        ex:Info262 ,
+        ex:Info263 .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Grafisk_designer> ex:relatedCourse ex:Info162, 
+        ex:Info262 ,
+        ex:Info263 .
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Ux_reasearcher> ex:relatedCourse ex:Info162, 
+        ex:Info262 ,
+        ex:Info263 .
 
 
-<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Machinelearningengineer> ex:relatedCourse ex:Info180, 
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Web_systemutvikler_designere> ex:relatedCourse ex:Info162, 
+        ex:Info212 ,
+        ex:Info215 ,
+        ex:Info262 ,
+        ex:Info263.
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Webutvikler> ex:relatedCourse ex:Info134 ,
+        ex:Info162, 
+        ex:Info212 ,
+        ex:Info215 ,
+        ex:Info262 ,
+        ex:Info263 .
+
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Machine_learning_engineer> ex:relatedCourse ex:Info180, 
         ex:Info284 .
+
 
 
 
