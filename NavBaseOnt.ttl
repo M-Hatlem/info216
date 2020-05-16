@@ -234,6 +234,12 @@
         ex:System_og_prosessansvarlig_regnskap ,
         ex:Fagansvarlig_drift_og_sikkerhet .
 
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Development> ex:relatedCourse ex:Info132 , 
+        ex:Info134 , 
+        ex:Info135 ,
+        ex:Info212 ,
+        ex:Info263 .
+        
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Python_programmer> ex:relatedCourse ex:Info132 ,
         ex:Info135 .
 
@@ -264,8 +270,6 @@
         ex:Info262 ,
         ex:Info263 .
 
-
-
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Web_systemutvikler_designere> ex:relatedCourse ex:Info162, 
         ex:Info212 ,
         ex:Info215 ,
@@ -279,10 +283,21 @@
         ex:Info262 ,
         ex:Info263 .
 
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Front_end_developer> ex:relatedCourse ex:Info162 , 
+        ex:Info262 ,
+        ex:Info263 .
 
 <https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Machine_learning_engineer> ex:relatedCourse ex:Info180, 
         ex:Info284 .
 
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#server_maintinance>  ex:relatedCourse ex:Info125, 
+        ex:Info104 .
 
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Systemarkitekt>  ex:relatedCourse ex:Info104 , 
+        ex:Info110 , 
+        ex:Info125 .
 
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Project_manager> ex:relatedCourse ex:Info300
+
+<https://github.com/M-Hatlem/info216/blob/master/Ontology/NavOntologyDefinition.txt#Engineer> ex:relatedCourse ex:Info331
 
