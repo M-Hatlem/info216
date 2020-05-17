@@ -62,7 +62,7 @@ We weren’t able to find an existing job hierarchy in neither Norwegian nor Eng
 
 *4 Example files. Provided with our submission there are two files titled “nav_data.json” and “nav_data.ttl”. These are not required for our program to run and saving a new file from the interface will overwrite them. These files can be imported using the import functions and will be used as example in case all the articles we have worked with are expired and no new articles share the same job titles. These are standard files downloaded and saved through our program and they have not been modified in any ways, just a contingency as the job ads on NAV’s website are ever changing. Without these there is a very unlikely chance our program will not show any results.
 
-# error-handeling
+### error-handeling
 Download errors:
 You could face a few possible download errors while trying to download the data, the interface will show you which error you have encounter if you do. In our testing we have only faced two types of errors. Once we had a 404 due to NAV’s servers being down for some reason, this is on NAV’s side of things an you’ll have to wait until they restart their system. As we only encountered this once, it’s safe to say the likelihood if this happening is quite low. The other type of error you can encounter is a 401, which means our authentication token has expired:
 *5 If our token is expired then you will get instructions on-screen how to update it using the “update token” function in the settings. The chance of the token expiring is unlikely as NAV haven’t changed the token for at least the 4 months we worked on the project, but if it happens go to:  https://github.com/navikt/pam-public-feed
