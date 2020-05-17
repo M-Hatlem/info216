@@ -50,7 +50,8 @@ We decided to primarily base ourselves of off Schema.org as it is a more enterpr
 For those we could not find in schema we opted to use DBpedia’s ontologies for. This is only limited to location data of cities, countries, counties and municipals as we wanted to link this up to the appropriate DBpedia pages. 
 We also used SKOS to create a hierarchy tree allowing you to search for a job and get all the results in the narrower branches of your search. 
 Our own ontology which was needed for the predicates missing from schema and the ones we couldn’t find in other vocabs.
-##Issues, error-handling and challenges:
+
+## Issues, error-handling and challenges:
 
 ### Challenges
 One of our biggest challenges were the fact that NAV’s data were incomplete. By that we mean when an employer creates a job ad in NAV’s site, there are only a few required input fields whereas the rest are optional. This leads to a lot of our data points having “None” as their value. We deiced to replace “None” with “Missing data” while showing information on the interface view as we felt that was a cleaner approach to displaying it. 
