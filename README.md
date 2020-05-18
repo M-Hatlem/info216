@@ -1,6 +1,9 @@
 
 # Info216 - A semantic job searcher
-Info216 knowledge graphs A UIB student project. This application has been made to download data from NAV, the Norwegian Labour and Welfare Administration through their swagger API. We had to lift the data from a JSON format into RDF triples making the data semantically accessible. On top of this we created GUI with the ability to run some simple SPARQL queries on the data.
+Info216 knowledge graphs A UIB student project. This application has been made to download data from NAV, the Norwegian Labour and Welfare Administration through their swagger API. We had to lift the data from a JSON format into RDF triples making the data semantically accessible.  
+On top of this we created GUI with the ability to run some simple SPARQL queries on the data.
+Our data is downloaded from NAV and they swagger API. Information about their API can be found here: https://github.com/navikt/pam-public-feed   
+The API itself is accessible through this link: https://arbeidsplassen.nav.no/public-feed/swagger/  
 
 ## Overview:
 
@@ -60,15 +63,6 @@ Be warned that by saving data you do risk overwriting our example files if you�
 
 ### Settings
 The third option in the context menu gives you access to the settings. Here you will have two options. The first allows you to update NAV’s API authentication key (as described in issue *2). This will be useful if the key has expired and needs to be replaced by a new one. By default, to current key is shown in the text window, just copy in the new on and press “Set token”. Once it has been set you can redownload the data from the other option in the settings, this is useful if the download failed and you want to try again. This function is not threaded so might cause the interface to say it has stopped working if you try to interact. Please just wait an be patient, as the code is still running in the background. 
-
-## Where we got our data and why we selected our vocabs
-Our data is downloaded from NAV and they swagger API. Information about their API can be found here: https://github.com/navikt/pam-public-feed  
-The API itself is accessible through this link: https://arbeidsplassen.nav.no/public-feed/swagger/  
-We also had to choose which vocabularies to use when lifting the data to rdf triples. We decided on primarily focusing on using Schema.org, DBpedia-owl, DBpedia-resource, SKOS and our own ontology.
-We decided to primarily base ourselves of off Schema.org as it is a more enterprise focused vocab. This fit with our intent of creating a job search engine which can also be seen as a tool useful for enterprises. In addition, schema already had most of the predicates we needed available.     
-For those we could not find in schema we opted to use DBpedia’s ontologies for. This is only limited to location data of cities, countries, counties and municipals as we wanted to link this up to the appropriate DBpedia pages. 
-We also used SKOS to create a hierarchy tree allowing you to search for a job and get all the results in the narrower branches of your search. 
-Our own ontology which was needed for the predicates missing from schema and the ones we couldn’t find in other vocabs.  
 
 ## Issues, error-handling and challenges:
 
