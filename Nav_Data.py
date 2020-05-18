@@ -63,8 +63,9 @@ class NavData:
 
     # if you want to save the json data downloaded, do this after a download, requires filename as input:
     def save_json(self, filename):
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(self.data, f, ensure_ascii=False, indent=4)
+        if self.data is not None:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(self.data, f, ensure_ascii=False, indent=4)
 
     # If you want to load a JSON file saved earlier, you can load a JSON document with nav data using this command. if you do this you don't need to download data, requires filename as input
     def load_json(self, filename):
@@ -83,7 +84,7 @@ class NavData:
         dbp_ont = Namespace("http://dbpedia.org/ontology/")
         self.graph.bind("dbpedia-owl", dbp_ont)
         dbp_res = Namespace("http://dbpedia.org/resource/")
-        self.graph.bind("dbpedia-owl", dbp_res)
+        self.graph.bind("dbpedia-resource", dbp_res)
         for job_ad in self.data['content']:
             unique_key = job_ad['uuid']
             for graph_predicate in job_ad:
