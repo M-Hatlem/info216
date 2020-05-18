@@ -1,7 +1,6 @@
 
 # Info216 - A semantic job searcher
-Info216 knowledge graphs A UIB student project. This application has been made to download data from NAV, the Norwegian Labour and Welfare Administration through their swagger API. We had to lift the data from a JSON format into RDF triples making the data semantically accessible.  
-On top of this we created GUI with the ability to run some simple SPARQL queries on the data.
+Info216 knowledge graphs A UIB student project. This application has been made to download data from NAV, the Norwegian Labour and Welfare Administration through their swagger API. We had to lift the data from a JSON format into RDF triples making the data semantically accessible. On top of this we created GUI with the ability to run some simple SPARQL queries on the data.  
 Our data is downloaded from NAV and they swagger API. Information about their API can be found here: https://github.com/navikt/pam-public-feed   
 The API itself is accessible through this link: https://arbeidsplassen.nav.no/public-feed/swagger/  
 
