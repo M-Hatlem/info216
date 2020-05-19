@@ -4,6 +4,8 @@ Info216 knowledge graphs A UIB student project. This application has been made t
 Our data is downloaded from NAV and they swagger API. Information about their API can be found here: https://github.com/navikt/pam-public-feed   
 The API itself is accessible through this link: https://arbeidsplassen.nav.no/public-feed/swagger/  
 
+We also had to choose which vocabularies to use when lifting the data to rdf triples. We used Schema.org, DBpedia-owl, DBpedia-resource, SKOS and our own ontology. We decided to primarily base ourselves off Schema.org as it is a more enterprise focused vocab. This fit with our intent of creating a job search engine which can also be seen as a tool useful for enterprises. In addition, schema already had most of the predicates we needed available. For those we could not find in schema we opted to use DBpedia’s ontologies for. This is only limited to location data of cities, countries, counties and municipalities as we wanted to link this up to the appropriate DBpedia pages. We also used SKOS to create a hierarchy tree allowing you to search for a job and get all the results in the narrower branches of your search. Our own ontology which was needed for the predicates missing from schema and the ones we couldn’t find in other vocabs.
+
 ## Overview:
 
 Requirements:  
